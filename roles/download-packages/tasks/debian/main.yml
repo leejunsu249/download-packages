@@ -1,0 +1,21 @@
+---
+- name: download packages(dpkg18)
+  include_tasks: packages-dpkg18.yml
+  when:
+    - ansible_distribution_major_version == "18"
+    - inventory_hostname in groups['dpkg18']
+    - download_option == "full" or download_option == "dpkg18"    
+
+- name: download packages(dpkg20)
+  include_tasks:  packages-dpkg20.yml
+  when:
+    - ansible_distribution_major_version == "20"  
+    - inventory_hostname in groups['dpkg20']
+    - download_option == "full" or download_option == "dpkg20"
+
+- name: download packages(dpkg22)
+  include_tasks:  packages-dpkg22.yml
+  when:
+    - ansible_distribution_major_version == "22"  
+    - inventory_hostname in groups['dpkg22']
+    - download_option == "full" or download_option == "dpkg22" 

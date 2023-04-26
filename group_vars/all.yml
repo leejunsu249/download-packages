@@ -1,0 +1,12 @@
+#- setup variable for packages
+########################################################
+## download_option(full/redhat7/redhat8/dpkg18/dpkg20/dpkg22)
+########################################################
+download_option: "full"
+
+########################################################
+## Common
+########################################################
+download_path: "/packages"
+kubernetes_verion: 1.25.6
+crio_version: 1.25

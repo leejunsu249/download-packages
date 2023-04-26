@@ -1,0 +1,296 @@
+- name: redhat8 directory
+  file: path="{{ download_path }}/rpm_redhat8" state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+  delegate_to: "{{ groups['local'][0] }}"
+
+- name: clean packages
+  shell: >
+    rm -rf {{ download_path }}/rpm_redhat8/*
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: packages directory
+  file: path=/packages state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: clean packages
+  shell: >
+    rm -rf /packages/*
+
+- name: install root directory
+  file: path=/packages/install state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: clean yum cache
+  shell: >
+    yum clean all
+
+- name: setting epel-release(redhat8)
+  shell: >
+    yum install -y epel-release
+  ignore_errors: yes    
+
+######################################
+#ansible
+######################################
+- name: packages directory
+  file: path=/packages/0_ansible state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: download sshpass(redhat8)
+  shell: >
+    yum install --downloadonly --releasever=8 --downloaddir=/packages/0_ansible sshpass -y
+
+- name: download python3(redhat8)
+  shell: >
+    yum install --installroot=/packages/install  --downloadonly  --releasever=8 --downloaddir=/packages/0_ansible python3-pip -y
+
+- name: install 0_ansible(redhat8)
+  shell: >
+    rpm -Uvh --force --nodeps {{ item }}
+  args:
+    chdir: "/packages"
+  with_items:
+    - "0_ansible/*.rpm"
+
+######################################
+#etc
+######################################
+- name: packages directory
+  file: path=/packages/00_etc state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: download buildah(redhat8)
+  shell: >
+    yum install --downloadonly --releasever=8 --downloaddir=/packages/00_etc buildah -y
+
+- name: download dnsmasq(redhat8)
+  shell: >
+    yum install --downloadonly --releasever=8 --downloaddir=/packages/00_etc dnsmasq -y
+    
+- name: download net-tools(redhat8)
+  shell: >
+    yum install --downloadonly --releasever=8 --downloaddir=/packages/00_etc net-tools -y
+
+- name: download tar(redhat8)
+  shell: >
+    yum install --downloadonly --releasever=8 --downloaddir=/packages/00_etc tar -y
+
+- name: download telnet(redhat8)
+  shell: >
+    yum install --downloadonly --releasever=8 --downloaddir=/packages/00_etc telnet -y
+
+- name: download rsync(redhat8)
+  shell: >
+    yum install --downloadonly --releasever=8 --downloaddir=/packages/00_etc rsync -y
+
+- name: install 00_etc(redhat8)
+  shell: >
+    rpm -Uvh --force --nodeps {{ item }}
+  args:
+    chdir: "/packages"
+  with_items:
+    - "00_etc/*.rpm"
+  ignore_errors: yes
+    
+######################################
+#git
+######################################
+- name: packages directory
+  file: path=/packages/2_git state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: download git(redhat8)
+  shell: >
+    yum install --downloadonly --releasever=8 --downloaddir=/packages/2_git git -y
+
+- name: install 2_git(redhat8)
+  shell: >
+    rpm -Uvh --force --nodeps {{ item }}
+  args:
+    chdir: "/packages"
+  with_items:
+    - "2_git/*.rpm"
+  ignore_errors: yes
+
+######################################
+#nfs
+######################################
+- name: packages directory
+  file: path=/packages/3_nfs state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: download nfs(redhat8)
+  shell: >
+    yum install --downloadonly --releasever=8 --downloaddir=/packages/3_nfs nfs-utils -y
+
+- name: install 3_nfs(redhat8)
+  shell: >
+    rpm -Uvh --force --nodeps {{ item }}
+  args:
+    chdir: "/packages"
+  with_items:
+    - "3_nfs/*.rpm"
+  ignore_errors: yes
+
+######################################
+#podman
+######################################
+- name: install podman(redhat8)
+  shell: >
+    yum install -y podman
+  ignore_errors: yes
+
+######################################
+#containerd
+######################################
+- name: packages directory
+  file: path=/packages/1_containerd state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: packages directory
+  file: path=/packages/1_containerd/package state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: setting docker repo
+  template:
+    src: docker-ce.repo.el8.j2
+    dest: /etc/yum.repos.d/docker-ce.repo
+
+- name: download containerd(redhat8)
+  shell: >
+     yum install --downloadonly --installroot=/packages/install --releasever=8 --downloaddir=/packages/1_containerd containerd.io -y
+
+- name: download containerd package(redhat8)
+  shell: >
+    yum install --downloadonly --releasever=8 --downloaddir=/packages/1_containerd/package  yum-utils device-mapper-persistent-data lvm2 -y
+
+- name: remove docker repo
+  shell: >
+    rm -rf /etc/yum.repos.d/docker-ce.repo
+
+######################################
+#cri-o
+######################################
+- name: packages directory
+  file: path=/packages/8_crio state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: setting cri-o repo1
+  shell: >
+    curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/CentOS_8/devel:kubic:libcontainers:stable.repo
+
+- name: setting cri-o repo2
+  shell: >
+    curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:{{ crio_version }}.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:{{ crio_version }}/CentOS_8/devel:kubic:libcontainers:stable:cri-o:{{ crio_version }}.repo
+
+- name: download cri-o(redhat8)
+  shell: >
+    yum install --downloadonly --installroot=/packages/install --releasever=8 --downloaddir=/packages/8_crio cri-o -y
+
+- name: remove cri-o repo
+  shell: >
+    rm -rf /etc/yum.repos.d/devel*
+
+
+######################################
+#kube
+######################################
+- name: packages directory
+  file: path=/packages/6_kube state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: setting kubernetes repo
+  template:
+    src: kubernetes.repo.j2
+    dest: /etc/yum.repos.d/kubernetes.repo
+
+- name: download kubernetes(redhat8)
+  shell: >
+    yum install -y --downloadonly --releasever=8 --downloaddir=/packages/6_kube kubeadm-{{ kubernetes_verion }}-0 kubectl-{{ kubernetes_verion }}-0 kubelet-{{ kubernetes_verion }}-0 --disableexcludes=kubernetes
+
+- name: remove kubenetes repo
+  shell: >
+    rm -rf /etc/yum.repos.d/kubernetes.repo
+
+######################################
+#ceph
+######################################
+- name: packages directory
+  file: path=/packages/9_ceph state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: setting ceph repo
+  template:
+    src: ceph.repo.el8.j2
+    dest: /etc/yum.repos.d/ceph.repo
+
+- name: download ceph(redhat8)
+  shell: >
+    yum install --downloadonly --releasever=8 --downloaddir=/packages/9_ceph ceph-fuse -y
+
+- name: remove ceph repo
+  shell: >
+    rm -rf /etc/yum.repos.d/ceph.repo
+
+######################################
+#jq
+######################################
+- name: packages directory
+  file: path=/packages/jq state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: download jq(redhat8)
+  shell: >
+    yum install --downloadonly --releasever=8 --downloaddir=/packages/jq jq -y
+
+######################################
+#gpu
+###################################### 
+- name: packages directory
+  file: path=/packages/gpu state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: setting nvidia repo
+  template:
+    src: nvidia-container-runtime.repo.el8.j2
+    dest: /etc/yum.repos.d/nvidia-container-runtime.repo
+
+- name: download gpu(redhat8)
+  shell: >
+     yum install --downloadonly --releasever=8  --downloaddir=/packages/gpu nvidia-container-runtime -y
+
+- name: remove nvidia repo
+  shell: >
+    rm -rf /etc/yum.repos.d/nvidia-container-runtime.repo
+
+######################################
+#sync
+######################################
+- name: sychronize packages
+  synchronize:
+    src: "/packages/{{ item }}"
+    dest: "{{ download_path }}/rpm_redhat8"
+    mode: pull
+  with_items:
+    - 0_ansible
+    - 1_containerd
+    - 2_git
+    - 3_nfs
+    - 6_kube
+    - 8_crio
+    - 9_ceph
+    - gpu
+    - jq
+    - "00_etc"
+  loop_control:
+    index_var: my_idx
+    label: "Copy {{ item }} [ {{ my_idx+1 }}/10 / {{ ((my_idx+1)/10*100)|int }}% ]"
+  register: result
+  until: result.rc == 0
+  retries: 3
+  delay: 5
+
+- name: remove rsync
+  shell: >
+    yum remove rsync -y

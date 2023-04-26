@@ -1,0 +1,442 @@
+- name: dpkg18 directory
+  file: path="{{ download_path }}/dpkg18" state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: clean packages
+  shell: >
+    rm -rf {{ download_path }}/dpkg18/*
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes    
+
+- name: packages directory
+  file: path=/packages state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: clean packages
+  shell: >
+    rm -rf /packages/*
+
+######################################
+#ansible
+######################################
+- name: packages directory
+  file: path=/packages/0_ansible state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: packages directory
+  file: path="{{ download_path }}/dpkg18/0_ansible" state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: download sshpass(dpkg18)
+  shell: >
+    apt-get install --reinstall -d -o=dir::cache=/packages/0_ansible sshpass -y
+
+- name: download python3(dpkg18)
+  shell: >
+    apt-get install --reinstall -d -o=dir::cache=/packages/0_ansible python3-pip -y
+
+- name: install 0_ansible (dpkg18)
+  shell: >
+    yes | dpkg --force-depends --install {{ item }}
+  with_items:
+    - "0_ansible/*.deb"
+  environment:
+    - DEBIAN_FRONTEND: 'noninteractive'
+    - DEBCONF_NONINTERACTIVE_SEEN: 'true'
+  args:
+    chdir: "/packages"
+  ignore_errors: yes
+
+######################################
+#etc
+######################################
+- name: packages directory
+  file: path=/packages/00_etc state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: packages directory
+  file: path="{{ download_path }}/dpkg18/00_etc" state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: setting ppa repo
+  shell: >
+    add-apt-repository ppa:projectatomic/ppa -y
+  ignore_errors: yes
+
+- name: download buildah(dpkg18)
+  shell: >
+   apt-get install --reinstall -d -o=dir::cache=/packages/00_etc buildah -y
+
+- name: download dnsmasq(dpkg18)
+  shell: >
+    apt-get install --reinstall -d -o=dir::cache=/packages/00_etc dnsmasq -y
+    
+- name: download net-tools(dpkg18)
+  shell: >
+    apt-get install --reinstall -d -o=dir::cache=/packages/00_etc net-tools -y
+
+- name: download rsync(dpkg18)
+  shell: >
+    apt-get install --reinstall -d -o=dir::cache=/packages/00_etc rsync -y
+
+- name: download tar(dpkg18)
+  shell: >
+    apt-get install --reinstall -d -o=dir::cache=/packages/00_etc tar -y
+
+- name: download telnet(dpkg18)
+  shell: >
+     apt-get install --reinstall -d -o=dir::cache=/packages/00_etc telnet -y
+
+- name: install 00_etc (dpkg18)
+  shell: >
+    yes | dpkg --force-depends --install {{ item }}
+  with_items:
+    - "00_etc/*.deb"
+  environment:
+    - DEBIAN_FRONTEND: 'noninteractive'
+    - DEBCONF_NONINTERACTIVE_SEEN: 'true'
+  args:
+    chdir: "/packages"
+  ignore_errors: yes    
+
+######################################
+#git
+######################################
+- name: packages directory
+  file: path=/packages/2_git state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: packages directory
+  file: path="{{ download_path }}/dpkg18/2_git" state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: download git(dpkg18)
+  shell: >
+    apt-get install --reinstall -d -o=dir::cache=/packages/2_git git -y
+
+- name: install 2_git (dpkg18)
+  shell: >
+    yes | dpkg --force-depends --install {{ item }}
+  with_items:
+    - "2_git/*.deb"
+  environment:
+    - DEBIAN_FRONTEND: 'noninteractive'
+    - DEBCONF_NONINTERACTIVE_SEEN: 'true'
+  args:
+    chdir: "/packages"
+  ignore_errors: yes  
+
+######################################
+#nfs
+######################################
+- name: packages directory
+  file: path=/packages/3_nfs state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: packages directory
+  file: path="{{ download_path }}/dpkg18/3_nfs" state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: download nfs(dpkg18)
+  shell: >
+    apt-get install --reinstall -d -o=dir::cache=/packages/3_nfs nfs-kernel-server -y
+
+- name: install 3_nfs (dpkg18)
+  shell: >
+    yes | dpkg --force-depends --install {{ item }}
+  with_items:
+    - "3_nfs/*.deb"
+  environment:
+    - DEBIAN_FRONTEND: 'noninteractive'
+    - DEBCONF_NONINTERACTIVE_SEEN: 'true'
+  args:
+    chdir: "/packages"
+  ignore_errors: yes
+
+######################################
+#ntp
+######################################
+- name: packages directory
+  file: path=/packages/4_ntp state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: packages directory
+  file: path="{{ download_path }}/dpkg18/4_ntp" state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: download nfs(dpkg18)
+  shell: >
+    apt-get install --reinstall -d -o=dir::cache=/packages/4_ntp ntp -y
+
+- name: install 4_ntp (dpkg18)
+  shell: >
+    yes | dpkg --force-depends --install {{ item }}
+  with_items:
+    - "4_ntp/*.deb"
+  environment:
+    - DEBIAN_FRONTEND: 'noninteractive'
+    - DEBCONF_NONINTERACTIVE_SEEN: 'true'
+  args:
+    chdir: "/packages"
+  ignore_errors: yes
+
+######################################
+#python
+######################################
+- name: packages directory
+  file: path=/packages/5_python state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: packages directory
+  file: path="{{ download_path }}/dpkg18/5_python" state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: download python(dpkg18)
+  shell: >
+    apt-get install --reinstall -d -o=dir::cache=/packages/5_python  python -y
+
+- name: install 5_python (dpkg18)
+  shell: >
+    yes | dpkg --force-depends --install {{ item }}
+  with_items:
+    - "5_python/*.deb"
+  environment:
+    - DEBIAN_FRONTEND: 'noninteractive'
+    - DEBCONF_NONINTERACTIVE_SEEN: 'true'
+  args:
+    chdir: "/packages"
+  ignore_errors: yes
+
+######################################
+#podman
+######################################
+- name: install podman(dpkg18)
+  shell: >
+    apt-get install -y podman
+  ignore_errors: yes
+  
+######################################
+#containerd
+######################################
+- name: packages directory
+  file: path=/packages/1_containerd state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: packages directory
+  file: path="{{ download_path }}/dpkg18/1_containerd" state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: setting docker repo key
+  shell: >
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+- name: setting docker repo
+  shell: >
+    apt-add-repository "deb https://download.docker.com/linux/ubuntu/ bionic stable"
+
+- name: apt update
+  apt:
+    update_cache: yes
+
+- name: download containerd(dpkg18)
+  shell: >
+    apt-get install --reinstall -d -o=dir::cache=/packages/1_containerd containerd.io -y
+
+- name: clean docker repo
+  shell: >
+    apt-add-repository "deb https://download.docker.com/linux/ubuntu/ bionic stable" --remove
+
+######################################
+#cri-o
+######################################
+- name: packages directory
+  file: path=/packages/8_crio state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: packages directory
+  file: path="{{ download_path }}/dpkg18/8_crio" state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: setting cri-o repo1 key
+  shell: >
+    curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:{{ crio_version }}/xUbuntu_18.04/Release.key | sudo apt-key add -
+
+- name: setting cri-o repo2 key
+  shell: >
+    curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_18.04/Release.key | sudo apt-key add -
+
+- name: setting cri-o repo1
+  shell: >
+    echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_18.04/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+
+- name: setting cri-o repo2
+  shell: >
+    echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ crio_version }}/xUbuntu_18.04/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:{{ crio_version }}.list
+
+- name: apt update
+  apt:
+    update_cache: yes
+
+- name: download cri-o(dpkg18)
+  shell: >
+    apt-get install --reinstall -d -o=dir::cache=/packages/8_crio cri-o cri-o-runc -y
+
+- name: remove cri-o repo
+  shell: >
+    rm -rf /etc/apt/sources.list.d/*
+
+######################################
+#kube
+######################################
+- name: packages directory
+  file: path=/packages/6_kube state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: packages directory
+  file: path="{{ download_path }}/dpkg18/6_kube" state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: setting kubernetes repo key
+  shell: >
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+- name: setting kubernetes repo
+  shell: >
+    apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+
+- name: apt update
+  apt:
+    update_cache: yes
+
+- name: download kubernetes(dpkg18)
+  shell: >
+     apt-get install --reinstall -d -o=dir::cache=/packages/6_kube kubeadm={{ kubernetes_verion }}-00 kubectl={{ kubernetes_verion }}-00 kubelet={{ kubernetes_verion }}-00 -y
+
+- name: repo clean
+  shell: >
+    apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main" --remove
+
+######################################
+#ceph
+######################################
+- name: packages directory
+  file: path=/packages/9_ceph state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: packages directory
+  file: path="{{ download_path }}/dpkg18/9_ceph" state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: apt update
+  apt:
+    update_cache: yes
+
+- name: download ceph(dpkg18)
+  shell: >
+    apt-get install --reinstall -d -o=dir::cache=/packages/9_ceph ceph-fuse -y
+
+######################################
+#etcd
+######################################
+- name: packages directory
+  file: path=/packages/etcd state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: packages directory
+  file: path="{{ download_path }}/dpkg18/etcd" state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: download etcd(dpkg18)
+  shell: >
+    apt-get install --reinstall -d -o=dir::cache=/packages/etcd etcd -y
+
+######################################
+#jq
+######################################
+- name: packages directory
+  file: path=/packages/jq state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: packages directory
+  file: path="{{ download_path }}/dpkg18/jq" state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: download jq(dpkg18)
+  shell: >
+   apt-get install --reinstall -d -o=dir::cache=/packages/jq jq -y
+
+######################################
+#gpu
+###################################### 
+- name: packages directory
+  file: path=/packages/gpu state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: packages directory
+  file: path="{{ download_path }}/dpkg18/gpu" state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: setting nvidia repo key
+  shell: >
+    curl -s -L https://nvidia.github.io/libnvidia-container/gpgkey | sudo apt-key add -
+    
+
+- name: setting nvidia repo
+  shell: >
+    curl -s -L https://nvidia.github.io/libnvidia-container/ubuntu18.04/libnvidia-container.list | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+- name: apt update
+  apt:
+    update_cache: yes
+
+- name: download gpu(dpkg18)
+  shell: >
+     apt-get install --reinstall -d -o=dir::cache=/packages/gpu nvidia-container-runtime -y
+
+- name: clean repo
+  shell: >
+    rm -rf /etc/apt/sources.list.d/*
+
+######################################
+#sync
+######################################
+- name: sychronize packages
+  synchronize:
+    src: "/packages/{{ item }}/archives/*.deb"
+    dest: "{{ download_path }}/dpkg18/{{ item }}"
+    mode: pull
+  with_items:
+    - 0_ansible
+    - 1_containerd
+    - 2_git
+    - 3_nfs
+    - 4_ntp
+    - 5_python
+    - 6_kube
+    - 8_crio
+    - 9_ceph
+    - etcd
+    - gpu
+    - jq
+    - 00_etc
+  loop_control:
+    index_var: my_idx
+    label: "Copy {{ item }} [ {{ my_idx+1 }}/13 / {{ ((my_idx+1)/13*100)|int }}% ]"
+  register: result
+  until: result.rc == 0
+  retries: 3
+  delay: 5    

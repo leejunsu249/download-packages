@@ -1,0 +1,31 @@
+---
+- name: node check(300s)
+  hosts: packages
+
+  gather_facts: false
+
+  remote_user: "{{ ansible_user }}"
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  pre_tasks:
+  - name: wait connection
+    wait_for_connection:
+      delay: 0
+      timeout: 300
+    connection: local
+
+- name: Download packages
+  hosts: packages
+  gather_facts: true
+
+  become: yes
+  become_user: root
+  become_method: sudo  
+
+  roles:
+    - role: download-packages
+
+
+     

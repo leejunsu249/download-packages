@@ -1,0 +1,332 @@
+- name: redhat7 directory
+  file: path="{{ download_path }}/rpm_redhat7" state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: clean packages
+  shell: >
+    rm -rf {{ download_path }}/rpm_redhat7/*
+  delegate_to: "{{ groups['local'][0] }}"
+  ignore_errors: yes
+
+- name: packages directory
+  file: path=/packages state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: clean packages
+  shell: >
+    rm -rf /packages/*
+
+- name: install root directory
+  file: path=/packages/install state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: clean yum cache
+  shell: >
+    yum clean all
+
+- name: setting epel-release(redhat7)
+  shell: >
+    yum install -y epel-release
+  ignore_errors: yes    
+
+######################################
+#ansible
+######################################
+- name: packages directory
+  file: path=/packages/0_ansible state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: download sshpass(redhat7)
+  shell: >
+    yum install --downloadonly --releasever=7 --downloaddir=/packages/0_ansible sshpass -y
+
+  shell: >
+    yum install --installroot=/packages/install  --downloadonly  --releasever=7 --downloaddir=/packages/0_ansible python3-pip -y
+
+- name: install 0_ansible(redhat7)
+  shell: >
+    rpm -Uvh --force --nodeps {{ item }}
+  args:
+    chdir: "/packages"
+  with_items:
+    - "0_ansible/*.rpm"
+
+######################################
+#etc
+######################################
+- name: packages directory
+  file: path=/packages/00_etc state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: download buildah(redhat7)
+  shell: >
+    yum install --downloadonly --releasever=7 --downloaddir=/packages/00_etc buildah -y
+
+- name: download dnsmasq(redhat7)
+  shell: >
+    yum install --downloadonly --releasever=7 --downloaddir=/packages/00_etc dnsmasq -y
+    
+- name: download net-tools(redhat7)
+  shell: >
+    yum install --downloadonly --releasever=7 --downloaddir=/packages/00_etc net-tools -y
+
+- name: download rsync(redhat7)
+  shell: >
+    yum install --downloadonly --releasever=7 --downloaddir=/packages/00_etc rsync -y
+
+- name: download tar(redhat7)
+  shell: >
+    yum install --downloadonly --releasever=7 --downloaddir=/packages/00_etc tar -y
+
+- name: download telnet(redhat7)
+  shell: >
+    yum install --downloadonly --releasever=7 --downloaddir=/packages/00_etc telnet -y
+
+- name: install rsync
+  shell: >
+    yum install rsync -y
+
+- name: install 00_etc(redhat7)
+  shell: >
+    rpm -Uvh --force --nodeps {{ item }}
+  args:
+    chdir: "/packages"
+  with_items:
+    - "00_etc/*.rpm"
+
+######################################
+#git
+######################################
+- name: packages directory
+  file: path=/packages/2_git state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: download git(redhat7)
+  shell: >
+    yum install --downloadonly --releasever=7 --downloaddir=/packages/2_git git -y
+
+- name: install 2_git(redhat7)
+  shell: >
+    rpm -Uvh --force --nodeps {{ item }}
+  args:
+    chdir: "/packages"
+  with_items:
+    - "2_git/*.rpm"
+
+######################################
+#nfs
+######################################
+- name: packages directory
+  file: path=/packages/3_nfs state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: download nfs(redhat7)
+  shell: >
+    yum install --downloadonly --releasever=7 --downloaddir=/packages/3_nfs nfs-utils -y
+
+- name: install 3_nfs(redhat7)
+  shell: >
+    rpm -Uvh --force --nodeps {{ item }}
+  args:
+    chdir: "/packages"
+  with_items:
+    - "3_nfs/*.rpm"
+
+######################################
+#ntp
+######################################
+- name: packages directory
+  file: path=/packages/4_ntp state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: download nfs(redhat7)
+  shell: >
+    yum install --downloadonly --releasever=7 --downloaddir=/packages/4_ntp ntp -y
+
+- name: install 4_ntp(redhat7)
+  shell: >
+    rpm -Uvh --force --nodeps {{ item }}
+  args:
+    chdir: "/packages"
+  with_items:
+    - "4_ntp/*.rpm"
+
+######################################
+#python
+######################################
+- name: packages directory
+  file: path=/packages/5_python state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: download python(redhat7)
+  shell: >
+     yum install --downloadonly --releasever=7  --installroot=/packages/install --downloaddir=/packages/5_python  python2 -y
+
+- name: install 5_python(redhat7)
+  shell: >
+    rpm -Uvh --force --nodeps {{ item }}
+  args:
+    chdir: "/packages"
+  with_items:
+    - "5_python/*.rpm"
+
+######################################
+#podman
+######################################
+- name: install podman
+  shell: >
+    yum install  -y podman
+  ignore_errors: yes
+  
+######################################
+#containerd
+######################################
+- name: packages directory
+  file: path=/packages/1_containerd state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: packages directory
+  file: path=/packages/1_containerd/package state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: setting docker repo
+  template:
+    src: docker-ce.repo.el7.j2
+    dest: /etc/yum.repos.d/docker-ce.repo
+
+- name: download containerd(redhat7)
+  shell: >
+    yum install --downloadonly --releasever=7 --installroot=/packages/install --downloaddir=/packages/1_containerd containerd.io -y
+
+- name: download containerd package(redhat7)
+  shell: >
+    yum install --downloadonly --releasever=7  --downloaddir=/packages/1_containerd/package  yum-utils device-mapper-persistent-data lvm2 -y
+
+######################################
+#cri-o
+######################################
+- name: packages directory
+  file: path=/packages/8_crio state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: setting cri-o repo1
+  shell: >
+    curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_7/devel:kubic:libcontainers:stable.repo
+
+- name: setting cri-o repo2
+  shell: >
+    curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:{{crio_version}}.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:{{crio_version}}/CentOS_7/devel:kubic:libcontainers:stable:cri-o:{{crio_version}}.repo
+
+- name: download cri-o(redhat7)
+  shell: >
+    yum install --downloadonly --installroot=/packages/install --releasever=7 --downloaddir=/packages/8_crio cri-o -y
+
+- name: remove cri-o repo
+  shell: >
+    rm -rf /etc/yum.repos.d/devel*
+
+######################################
+#kube
+######################################
+- name: packages directory
+  file: path=/packages/6_kube state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: setting kubernetes repo
+  template:
+    src: kubernetes.repo.j2
+    dest: /etc/yum.repos.d/kubernetes.repo
+
+- name: download kubernetes(redhat7)
+  shell: >
+    yum install -y --downloadonly --releasever=7 --downloaddir=/packages/6_kube kubeadm-{{ kubernetes_verion }}-0 kubectl-{{ kubernetes_verion }}-0 kubelet-{{ kubernetes_verion }}-0 --disableexcludes=kubernetes
+
+######################################
+#ceph
+######################################
+- name: packages directory
+  file: path=/packages/9_ceph state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: setting ceph repo
+  template:
+    src: ceph.repo.el7.j2
+    dest: /etc/yum.repos.d/ceph.repo
+
+- name: download ceph(redhat7)
+  shell: >
+    yum install --downloadonly --releasever=7 --downloaddir=/packages/9_ceph ceph-fuse -y
+
+######################################
+#etcd
+######################################
+- name: packages directory
+  file: path=/packages/etcd state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: download etcd(redhat7)
+  shell: >
+    yum install --downloadonly --releasever=7 --downloaddir=/packages/etcd etcd -y
+
+######################################
+#jq
+######################################
+- name: packages directory
+  file: path=/packages/jq state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: download jq(redhat7)
+  shell: >
+    yum install --downloadonly --releasever=7 --downloaddir=/packages/jq jq -y
+
+######################################
+#gpu
+###################################### 
+- name: packages directory
+  file: path=/packages/gpu state=directory owner={{ ansible_user }} group={{ ansible_group }}
+  ignore_errors: yes
+
+- name: setting nvidia repo
+  template:
+    src: nvidia-container-runtime.repo.el7.j2
+    dest: /etc/yum.repos.d/nvidia-container-runtime.repo
+
+- name: download gpu(redhat7)
+  shell: >
+     yum install --downloadonly --releasever=7  --downloaddir=/packages/gpu nvidia-container-runtime -y
+
+######################################
+#sync
+######################################
+
+- name: sychronize packages
+  synchronize:
+    src: "/packages/{{ item }}"
+    dest: "{{ download_path }}/rpm_redhat7"
+    mode: pull
+  with_items:
+    - 0_ansible
+    - 1_containerd
+    - 2_git
+    - 3_nfs
+    - 4_ntp
+    - 5_python
+    - 6_kube
+    - 8_crio
+    - 9_ceph
+    - etcd
+    - gpu
+    - jq
+    - 00_etc
+  loop_control:
+    index_var: my_idx
+    label: "Copy {{ item }} [ {{ my_idx+1 }}/13 / {{ ((my_idx+1)/13*100)|int }}% ]"
+  register: result
+  until: result.rc == 0
+  retries: 3
+  delay: 5    
+
+- name: remove rsync
+  shell: >
+    yum remove rsync -y
